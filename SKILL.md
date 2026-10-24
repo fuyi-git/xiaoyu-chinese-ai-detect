@@ -1,6 +1,6 @@
 ---
 name: 晓语-中文AI检测
-description: 晓语 · 中文 AI 检测（本地 CPU 推理，不联网）。输入一篇中文文本，给出一个整篇「AI生成概率」与三档判决（AI特征明显 ≥90% / 疑似AI参与 50–90% / AI特征不明显 <50%），并逐句给出句头概率（仅供参考）。整篇聚合支持等权（默认）与加权两种口径。int4 权重 63MB，未随包附带时首次自动下载。触发词：检测这段是不是 AI 写的、AI 味检测、AI 文本鉴别、判 AI、这段稿子像不像 AI 写的、人写的还是 AI 写的、AI生成概率、晓语检测、中文AI检测。
+description: 晓语 · 中文 AI 检测（本地 CPU 推理，不联网）。输入一篇中文文本，给出一个整篇「AI生成概率」与三档判决（AI特征明显 ≥90% / 疑似AI参与 50–90% / AI特征不明显 <50%），并逐句给出句头概率（仅供参考）。整篇聚合支持等权（默认）与加权两种口径。权重默认 int4 60MB，可选 int8 / fp32；技能包内未附带时首次自动下载。触发词：检测这段是不是 AI 写的、AI 味检测、AI 文本鉴别、判 AI、这段稿子像不像 AI 写的、人写的还是 AI 写的、AI生成概率、晓语检测、中文AI检测。
 agent_created: true
 ---
 
@@ -9,7 +9,7 @@ agent_created: true
 输入一段中文文本，输出两样东西：**一个整篇概率**，和**每句话的句头概率**。
 
 模型是中文 RoBERTa（BERT-base 结构）微调而来的二分类器，单 logit → `sigmoid` 得概率。
-当前模型版本 **V3.3**。int4 权重约 63MB：本包**不附带**权重文件，首次使用前跑一次 `scripts/download.py` 从魔搭拉取；之后纯 CPU 本地推理，不联网、不上传文本。
+当前模型版本 **V3.3**。默认 int4 权重 60.2MB：本包**不附带**权重文件，首次使用前跑一次 `scripts/download.py` 从魔搭拉取；之后纯 CPU 本地推理，不联网、不上传文本。
 
 ## 判决口径（唯一一套尺子）
 
@@ -76,9 +76,29 @@ agent_created: true
 
 **不适用**：揪出人稿里混入的 AI 段落（句级信号太弱），也不能当作者身份的证据。
 
+## 权重三档：默认 int4，可按需换
+
+同一份模型出了三个精度档，**三档都是打包好的成品，不需要自己再打包或量化**：
+
+| 档 | 体积 | 怎么用 |
+|---|---|---|
+| **int4 轻量档（默认）** | 60.2 MB | 什么都不用写，`detect.py` 自动用 |
+| int8 平衡档 | 101.0 MB | 先 `download.py --bits 8`，再 `detect.py ... --bits 8` |
+| fp32 原始精度档 | 390.1 MB | 先 `download.py --bits 32`，再 `detect.py ... --bits 32` |
+
+三档在同一批文本上的分数偏差**最大 0.5448 个百分点**（短句样本上最大；常规 AI 腔与真人口语只差
+0.01–0.06 个百分点）。也就是说：**换档基本不会改变判决结论，只影响极端边界样本**。
+除非要复现论文级读数或卡在 89%–91% 这种线上，否则用默认 int4 就够。
+
+> fp32 档是标准 `safetensors` 目录，用 `from_pretrained` 直读；int4 / int8 是本仓库自带的打包格式，
+> 需要 `unpack_blob` 解包，不支持 vLLM / ollama / llama.cpp / GPTQ / AWQ。
+
+每次输出末尾都会打印实际用的档（`权重 int4`），避免记不清自己在看哪一档的分数。
+
 ## 怎么用
 
 依赖：`pip install torch --index-url https://download.pytorch.org/whl/cpu && pip install transformers`
+（首次拉权重还需 `pip install modelscope`）
 
 **单段，人话版**（默认）：先给整篇概率，再给句头概率列表。
 
@@ -148,9 +168,9 @@ python scripts/detect.py --file input.jsonl --out output.jsonl
 
 ## 文件清单
 
-- `scripts/detect.py` — 打分入口（整篇 + 句头，两种聚合）
-- `scripts/download.py` — 从魔搭拉 int4 权重（**首次必需**，拉到 `~/.cache/xiaoyu-ai-detect`）
-- `assets/int4_packed.pt` — int4 权重（63MB）；**开源包内不附带**，由 download.py 拉到缓存目录
+- `scripts/detect.py` — 打分入口（整篇 + 句头，两种聚合，`--bits` 选档）
+- `scripts/download.py` — 从魔搭拉权重（`--bits 4|8|32` 选档，`--check` 三档巡检）
+- `assets/int4_packed.pt` — int4 权重（60.2MB）；**开源包内不附带**，由 download.py 拉到缓存目录
 - `assets/model_cfg/config.json` — 模型结构配置
 - `assets/tok/` — 词表与分词器配置
 - `references/口径与边界.md` — 两种聚合的取舍、句头的能力边界、对外表述模板

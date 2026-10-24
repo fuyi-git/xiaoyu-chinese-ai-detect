@@ -20,20 +20,37 @@ Windows 对应 `C:\Users\<你的用户名>\.workbuddy\skills\xiaoyu-chinese-ai-d
 
 ## 首次使用：先拉一次权重
 
-本仓库**不包含** 63MB 的权重文件（二进制不进 git，避免仓库历史被反复撑大）。
+本仓库**不包含**权重文件（二进制不进 git，避免仓库历史被反复撑大）。
 首次使用前跑一次：
 
 ```bash
 python scripts/download.py
 ```
 
-它会从魔搭 [fuyi163/xiaoyu-chinese-ai-detect](https://modelscope.cn/models/fuyi163/xiaoyu-chinese-ai-detect)
-拉取 `quant/int4_packed.pt` 到 `~/.cache/xiaoyu-ai-detect`，并做 sha256 校验。
+默认拉 **int4 轻量档**（60.2 MB，速度最快），从魔搭
+[fuyi163/xiaoyu-chinese-ai-detect](https://modelscope.cn/models/fuyi163/xiaoyu-chinese-ai-detect)
+拉到 `~/.cache/xiaoyu-ai-detect`，并做 sha256 校验。
+
+**想要更高保真可以换一档**（用体积换精度，按需选，不必全下）：
+
+| 档 | 体积 | 怎么拉 | 和 int4 比分数差别 |
+|---|---|---|---|
+| int4 轻量档（默认） | 60.2 MB | `python scripts/download.py` | 基准 |
+| int8 平衡档 | 101.0 MB | `python scripts/download.py --bits 8` | ≤ 0.55 个百分点 |
+| fp32 原始精度档 | 390.1 MB | `python scripts/download.py --bits 32` | 同上 |
+
+拉完打分时用 `--bits` 指定档位（不写就是 int4）：
+
+```bash
+python scripts/detect.py "文本" --bits 8
+```
+
+`python scripts/download.py --check` 一次列出三档本地有没有、sha256 对不对。
 
 之后**纯本地 CPU 推理，不联网，不上传任何文本**。
 
 > **若下载报 404 / `record not found`**：是模型仓库暂不可用（尚未发布或正在迁移），不是你操作错了。
-> 脚本会自动重试 3 次；仍失败就按提示手动下载 `quant/int4_packed.pt`，放到 `~/.cache/xiaoyu-ai-detect/`。
+> 脚本会自动重试 3 次；仍失败就按提示手动下载对应文件，放到 `~/.cache/xiaoyu-ai-detect/`。
 >
 > 想改成离线自包含：把权重文件直接放进 `assets/` 即可，`detect.py` 会优先用它（三级查找：技能内置 → `XIAOYU_WEIGHTS` → 用户缓存）。
 
@@ -58,6 +75,7 @@ python scripts/detect.py "文本" --agg len      # 加权聚合（默认是等�
 python scripts/detect.py "文本" --no-sent      # 不算句头，长稿快很多
 python scripts/detect.py "文本" --json --both  # 同时给出等权与加权两个整篇分
 python scripts/detect.py "文本" --win 4        # 句头邻窗改成 ±4 句（默认 ±2）
+python scripts/detect.py "文本" --bits 32      # 换 fp32 那档权重（默认 int4）
 ```
 
 **批量（jsonl，每行 `{"id":"可选","text":"..."}`）**
