@@ -18,7 +18,48 @@ Windows 对应 `C:\Users\<你的用户名>\.workbuddy\skills\xiaoyu-chinese-ai-d
 
 目录名不影响识别，**技能名取自 `SKILL.md` 里的 `name` 字段**。
 
-## 首次使用：先拉一次权重
+## 首次使用：装环境 + 拉权重
+
+> **在 Agent 里用的，下面两步都不用你动手。**
+> 把稿子直接发给 agent 说「检测这段是不是 AI 写的」就行。第一次跑它会自己发现依赖没装、
+> 权重没下，然后装依赖、拉那 60MB 权重，再给你结果——首次大概等一两分钟，之后每次都是几秒。
+> **跳过下面两节，直接去看「用法」**。
+>
+> 只有**不用 agent、自己敲命令行跑脚本**的人，才需要照下面两步手动做一遍（做过一次就永久有效）。
+> 万一是 agent 那边装不上（网络问题），再回来手动走这两步。
+
+### 第 1 步：装 Python 环境（手动跑脚本时）
+
+要求 **Python ≥ 3.9**（实测 3.13 通过），**不需要显卡，纯 CPU 跑**。
+
+```bash
+# ① CPU 版 torch —— 这条必须带 --index-url
+pip install torch --index-url https://download.pytorch.org/whl/cpu
+# ② 加载模型用
+pip install transformers
+# ③ 只有"从魔搭拉权重"这一步才需要
+pip install modelscope
+```
+
+> **① 那条的 `--index-url` 千万别省**。不带的话 pip 会装 CUDA 版 torch，
+> 体积从约 200MB 涨到 2GB 以上，而且这台机器没 GPU 的话装了也用不上。
+
+装完自查一句，能打出两个版本号就是好了：
+
+```bash
+python -c "import torch, transformers; print(torch.__version__, transformers.__version__)"
+```
+
+**下载慢**就把 ②③ 换成国内镜像（① 不要换，CPU 版 torch 只有官方源有）：
+
+```bash
+pip install transformers modelscope -i https://mirrors.cloud.tencent.com/pypi/simple
+```
+
+> 实测跑通的组合：Python 3.13.14 ／ torch 2.14.0+cpu ／ transformers 5.17.0 ／
+> modelscope 1.40.2 ／ safetensors 0.8.0。装完整个环境约 500MB。
+
+### 第 2 步：拉权重（手动跑脚本时）
 
 本仓库**不包含**权重文件（二进制不进 git，避免仓库历史被反复撑大）。
 首次使用前跑一次：
@@ -55,6 +96,39 @@ python scripts/detect.py "文本" --bits 8
 > 想改成离线自包含：把权重文件直接放进 `assets/` 即可，`detect.py` 会优先用它（三级查找：技能内置 → `XIAOYU_WEIGHTS` → 用户缓存）。
 
 ## 用法
+
+### 在 Agent 里直接用（推荐）
+
+装好之后根本不用敲命令，直接在对话里说人话：
+
+> 帮我检测下这段是不是 AI 写的：<粘贴正文>
+
+agent 会自己调 `scripts/detect.py`，回给你**整篇概率、三档判决和句头分布**，你不用记参数。
+
+**能听懂的说法**（`SKILL.md` 里已声明的触发词）：
+
+> 检测这段是不是 AI 写的 ｜ AI 味检测 ｜ AI 文本鉴别 ｜ 判 AI ｜ 这段稿子像不像 AI 写的 ｜ 人写的还是 AI 写的 ｜ AI生成概率
+
+**常见想法对照**——按左边这么说，agent 会自己换算成右边的参数：
+
+| 你想干嘛 | 就这么说 | agent 实际干的 |
+|---|---|---|
+| 判一篇稿 | 检测这段是不是 AI 写的：<正文> | 默认整篇 + 逐句 |
+| 只要整篇结论（长稿快很多） | 只给整篇概率，不用逐句 | `--no-sent` |
+| 换加权口径 | 用加权口径再算一遍 | `--agg len` |
+| 两个口径都要 | 两种口径都给我 | `--both` |
+| 批量判一堆 | 把这些逐条判一下，结果存 `out.jsonl` | `--file` / `--out` |
+| 换精度档 | 用 int8 那档再判一遍 | `--bits 8` |
+
+**三个坑先记住**：
+
+1. **刚装完要刷新会话**（重启 WorkBuddy 或新开一个对话）才认得到新技能——技能列表是启动时加载的，光把目录放进去它不会自动发现。
+2. **长文本别直接粘**。存成 `.txt`，把路径告诉 agent：「判一下 `C:\稿件\0824.txt`」。粘正文吃 token，超长还可能被截断。
+3. **报「找不到权重」= 还没拉权重**，回去跑一次 `python scripts/download.py`。
+
+> 技能名取自 `SKILL.md` 的 `name` 字段 **`晓语-中文AI检测`**，跟目录名 `xiaoyu-chinese-ai-detect` 不是一回事——两者不影响使用，但对话里叫它「晓语检测」最省事。
+
+### 命令行
 
 **单段（人话版输出）**
 
@@ -108,11 +182,6 @@ python scripts/detect.py "任意文本" --verify
 - `SKILL.md` —— 技能说明、完整用法与执行纪律（agent 实际读取的那份）
 - `references/口径与边界.md` —— 两种聚合怎么选、为什么切窗、句头和边界
 - `assets/README.md` —— 权重为什么不在仓库里、怎么拉
-
-## 环境
-
-- Python ≥ 3.9，`torch` ≥ 2.0，`transformers` ≥ 4.40；首次下载权重还需 `modelscope`
-- 纯 CPU 可跑，无需 GPU
 
 ## 许可
 
