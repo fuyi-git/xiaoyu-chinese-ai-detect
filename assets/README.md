@@ -10,7 +10,7 @@ int4 权重 `int4_packed.pt`（约 63MB）不进 git 仓库——二进制会让
 python scripts/download.py
 ```
 
-它会从魔搭 `yanxizhishang/xiaoyu-chinese-ai-detect` 拉 `quant/int4_packed.pt`
+它会从魔搭 `fuyi163/xiaoyu-chinese-ai-detect` 拉 `quant/int4_packed.pt`
 到 `~/.cache/xiaoyu-ai-detect`，并校验 sha256：
 
 ```

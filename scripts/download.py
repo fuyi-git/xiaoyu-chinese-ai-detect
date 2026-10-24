@@ -17,7 +17,7 @@ import shutil
 import sys
 import time
 
-MODEL_ID = "yanxizhishang/xiaoyu-chinese-ai-detect"
+MODEL_ID = "fuyi163/xiaoyu-chinese-ai-detect"
 FNAME = "int4_packed.pt"
 RELPATH = "quant/" + FNAME
 SHA256 = "80a2505fbc922ab33cc4e9875dd87b626225daba83bf980316c1ad07b045f2d9"

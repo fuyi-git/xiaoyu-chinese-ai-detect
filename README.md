@@ -27,7 +27,7 @@ Windows 对应 `C:\Users\<你的用户名>\.workbuddy\skills\xiaoyu-chinese-ai-d
 python scripts/download.py
 ```
 
-它会从魔搭 [yanxizhishang/xiaoyu-chinese-ai-detect](https://modelscope.cn/models/yanxizhishang/xiaoyu-chinese-ai-detect)
+它会从魔搭 [fuyi163/xiaoyu-chinese-ai-detect](https://modelscope.cn/models/fuyi163/xiaoyu-chinese-ai-detect)
 拉取 `quant/int4_packed.pt` 到 `~/.cache/xiaoyu-ai-detect`，并做 sha256 校验。
 
 之后**纯本地 CPU 推理，不联网，不上传任何文本**。

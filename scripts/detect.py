@@ -37,7 +37,7 @@ CACHE = os.path.join(os.path.expanduser("~"), ".cache", "xiaoyu-ai-detect")
 
 WEIGHTS = "int4_packed.pt"
 WEIGHT_SHA256 = "80a2505fbc922ab33cc4e9875dd87b626225daba83bf980316c1ad07b045f2d9"
-MODEL_ID = "yanxizhishang/xiaoyu-chinese-ai-detect"
+MODEL_ID = "fuyi163/xiaoyu-chinese-ai-detect"
 
 G = 128                      # 量化分组大小
 MAXLEN = 512
@@ -94,7 +94,7 @@ def sha256(path):
 
 
 def unpack_blob(blob, torch):
-    """打包件 → fp32 state_dict。规则与魔搭模型仓库 yanxizhishang/xiaoyu-chinese-ai-detect
+    """打包件 → fp32 state_dict。规则与魔搭模型仓库 fuyi163/xiaoyu-chinese-ai-detect
     附带的 pack_quant.py 逐位同源（本技能包不附带该文件，见 README）。"""
     out = {}
     for k, e in blob["pack"].items():
