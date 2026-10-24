@@ -18,6 +18,24 @@ Windows 对应 `C:\Users\<你的用户名>\.workbuddy\skills\xiaoyu-chinese-ai-d
 
 目录名不影响识别，**技能名取自 `SKILL.md` 里的 `name` 字段**。
 
+### 从魔搭一条命令装（推荐，不用自己找目录）
+
+```bash
+pip install modelscope
+modelscope skills add fuyi163/xiaoyu-ai-detect-skill \
+  --local_dir ~/.agents/skills/xiaoyu-chinese-ai-detect
+```
+
+`--local_dir` 后面那个目录名**建议自己带上**。CLI 是把包里文件**直接解到你给的目录根上**，
+不会自动套一层同名子目录——所以装多个技能时一定要各给一个独立目录，
+否则 `SKILL.md`、`LICENSE`、`README.md` 会互相覆盖。
+
+装完进那个目录跑一句校验，15 行全 OK 就说明整包没缺件：
+
+```bash
+cd ~/.agents/skills/xiaoyu-chinese-ai-detect && sha256sum -c SHA256SUMS.txt
+```
+
 ## 首次使用：装环境 + 拉权重
 
 > **在 Agent 里用的，下面两步都不用你动手。**
