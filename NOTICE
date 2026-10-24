@@ -1,0 +1,20 @@
+晓语 · 中文 AI 检测模型
+
+Copyright 2026 yanxizhishang
+
+本模型基于以下项目微调而来，其许可协议为 Apache License 2.0：
+
+  chinese-roberta-wwm-ext
+  Copyright 2019 HFL (Joint Laboratory of HIT and iFLYTEK Research)
+  https://huggingface.co/hfl/chinese-roberta-wwm-ext
+  论文：Cui et al., "Revisiting Pre-Trained Models for Chinese NLP" (2020)
+        Cui et al., "Pre-Training with Whole Word Masking for Chinese BERT" (2019)
+
+本软件按 Apache License 2.0 发布，全文见同目录 LICENSE 文件。
+
+使用要点（非法律意见）：
+  1. 可商用、可闭源、可修改、可再分发。
+  2. 保留本 NOTICE 与 LICENSE 文件；在产品文档中注明来源。
+  3. 标注你修改过的部分（本仓库的量化打包件与推理口径均为新增内容）。
+  4. 本模型输出的「AI生成概率」是一个统计倾向，不是作者身份的判定依据。
+     使用者需自行承担误判带来的后果。

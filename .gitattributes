@@ -1,0 +1,10 @@
+# 强制 LF 换行。
+# SHA256SUMS.txt 里的哈希是按 LF 字节算出来的；如果 clone 时被转成 CRLF，
+# 每个文件的哈希都会变，所有人跑 `sha256sum -c` 都会看到满屏 FAILED。
+# 这行的优先级高于 core.autocrlf，Windows 上也能保证 checkout 出 LF。
+* text=auto eol=lf
+
+# 权重是二进制，任何情况下都不做换行转换
+*.pt binary
+*.bin binary
+*.safetensors binary

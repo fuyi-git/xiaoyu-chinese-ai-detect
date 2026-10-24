@@ -1,0 +1,16 @@
+# 权重二进制不进仓库：63MB，且每换一版就多一份历史。
+# 首次使用跑 scripts/download.py 从魔搭拉取，落到 ~/.cache/xiaoyu-ai-detect。
+assets/int4_packed.pt
+assets/*.pt
+assets/*.bin
+assets/*.safetensors
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# 系统垃圾
+.DS_Store
+Thumbs.db
