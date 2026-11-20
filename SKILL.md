@@ -7,6 +7,8 @@ agent_created: true
 
 # 晓语 · 中文 AI 检测
 
+在线检测服务已经上线，欢迎试用：[zhi-entropy.com](https://www.zhi-entropy.com)
+
 输入一段中文文本，输出两样东西：**一个整篇概率**，和**每句话的句头概率**。
 
 模型是中文 RoBERTa（BERT-base 结构）微调而来的二分类器，单 logit → `sigmoid` 得概率。
